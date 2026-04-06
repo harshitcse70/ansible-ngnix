@@ -1,16 +1,18 @@
-# Ansible Nginx Automation
+# Ansible Nginx + Docker Automation (Role-Based)
 
-This project demonstrates how to automate the installation and management of Nginx on remote AWS EC2 instances using Ansible. It follows a real-world DevOps workflow including SSH-based authentication and infrastructure automation.
+This project demonstrates how to automate the installation and management of **Nginx and Docker** on remote AWS EC2 instances using **Ansible roles**. It follows a real-world DevOps workflow including **modular design, SSH authentication, and infrastructure automation**.
 
 ---
 
-## Overview
+##  Overview
 
-The playbook connects to remote servers using Ansible and performs:
+This project uses an Ansible playbook that calls reusable roles to:
 
-* Installation of Nginx
-* Starting the Nginx service
-* Enabling Nginx to start on boot
+* Install Docker
+* Install Nginx
+* Start and enable services on boot
+
+ Designed using **best practices (roles instead of monolithic playbooks)**
 
 ---
 
@@ -27,41 +29,44 @@ The playbook connects to remote servers using Ansible and performs:
 
 ```
 ansible-nginx/
-├── inventory        # Target server IPs
-├── nginx.yml        # Ansible playbook
+├── inventory
+├── nginx.yml
+├── roles/
+│   ├── docker/
+│   │   └── tasks/main.yml
+│   └── nginx/
+│       └── tasks/main.yml
 └── README.md
 ```
 
 ---
 
-##  Prerequisites
+## Prerequisites
 
-* Ansible installed on control node
+* Ansible installed on control/node(no need to install it on target node)
 * At least one EC2 instance (target node)
-* SSH access between control and target
+* SSH access configured between control and target
 
 ---
 
-##  SSH Key Setup (Manual Method)
+## SSH Key Setup (Manual Method)
 
-Passwordless SSH authentication is configured manually:
-
-### Step 1: Generate / View Public Key (Control Node)
+### Step 1: Generate Key (Control Node)
 
 ```
-ssh key-gen
+ssh-keygen
 cat ~/.ssh/id_rsa.pub
 ```
 
 ### Step 2: Add Key to Target Server
 
-Login to target EC2 and paste the key:
+Paste into:
 
 ```
 ~/.ssh/authorized_keys
 ```
 
-### Step 3: Set Correct Permissions
+### Step 3: Set Permissions
 
 ```
 chmod 700 ~/.ssh
@@ -74,13 +79,9 @@ chmod 600 ~/.ssh/authorized_keys
 ssh ubuntu@<target-ec2-ip>
 ```
 
-Successful login without password confirms setup
-
 ---
 
-## Run the Ansible Playbook
-
-Execute the playbook using:
+## Run the Playbook
 
 ```
 ansible-playbook -i inventory nginx.yml
@@ -88,20 +89,36 @@ ansible-playbook -i inventory nginx.yml
 
 ---
 
-## Features
+##  Execution Flow
 
-* Automates Nginx installation
-* Ensures service is running
-* Enables service at boot
-* Implements passwordless SSH authentication
+```
+Playbook (nginx.yml)
+        ↓
+Docker Role → installs Docker
+        ↓
+Nginx Role → installs Nginx
+        ↓
+Services started and enabled 
+```
 
 ---
 
-##  Key Learnings
+##  Features
 
-* Basics of Ansible automation
+* Role-based modular architecture
+* Automated Docker & Nginx installation
+* Service management (start + enable)
+* Passwordless SSH authentication
+* Clean and scalable DevOps structure
+
+---
+
+## Key Learnings
+
+* Ansible roles vs playbooks
+* Modular automation design
 * SSH key-based authentication
-* Managing remote infrastructure
-* Writing and executing playbooks
+* Infrastructure automation on AWS
+* Git branching & refactoring workflow
 
---- 
+---
